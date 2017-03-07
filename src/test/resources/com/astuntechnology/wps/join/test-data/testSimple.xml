@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?><wps:Execute version="1.0.0" service="WPS" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.opengis.net/wps/1.0.0" xmlns:wfs="http://www.opengis.net/wfs" xmlns:wps="http://www.opengis.net/wps/1.0.0" xmlns:ows="http://www.opengis.net/ows/1.1" xmlns:gml="http://www.opengis.net/gml" xmlns:ogc="http://www.opengis.net/ogc" xmlns:wcs="http://www.opengis.net/wcs/1.1.1" xmlns:xlink="http://www.w3.org/1999/xlink" xsi:schemaLocation="http://www.opengis.net/wps/1.0.0 http://schemas.opengis.net/wps/1.0.0/wpsAll.xsd">
+  <ows:Identifier>TableJoin:simpleJoinTables</ows:Identifier>
+  <wps:DataInputs>
+    <wps:Input>
+      <ows:Identifier>target</ows:Identifier>
+      <wps:Reference mimeType="text/xml" xlink:href="http://geoserver/wfs" method="POST">
+        <wps:Body>
+          <wfs:GetFeature service="WFS" version="1.0.0" outputFormat="GML2" xmlns:topp="http://www.openplans.org/topp">
+            <wfs:Query typeName="topp:states"/>
+          </wfs:GetFeature>
+        </wps:Body>
+      </wps:Reference>
+    </wps:Input>
+    <wps:Input>
+      <ows:Identifier>source</ows:Identifier>
+      <wps:Data>
+        <wps:ComplexData mimeType="application/json"><![CDATA[ {
+"type": "FeatureCollection",
+"features": [
+{ "type": "Feature", "properties": { "State": "Alabama", "inc1980": 7465, "inc1990": 14899, "inc1995": 19683, "inc2000": 23521, "inc2003": 26338, "inc2006": 30894, "inc2009": 33096, "inc2012": 35625 }, "geometry": null },
+{ "type": "Feature", "properties": { "State": "Alaska", "inc1980": 13007, "inc1990": 20887, "inc1995": 25798, "inc2000": 29642, "inc2003": 33568, "inc2006": 38138, "inc2009": 42603, "inc2012": 46778 }, "geometry": null },
+{ "type": "Feature", "properties": { "State": "Arizona", "inc1980": 8854, "inc1990": 16262, "inc1995": 20634, "inc2000": 24988, "inc2003": 26838, "inc2006": 31936, "inc2009": 32935, "inc2012": 35979 }, "geometry": null },
+{ "type": "Feature", "properties": { "State": "Arkansas", "inc1980": 7113, "inc1990": 13779, "inc1995": 18546, "inc2000": 21995, "inc2003": 24289, "inc2006": 28473, "inc2009": 31946, "inc2012": 34723 }, "geometry": null },
+{ "type": "Feature", "properties": { "State": "California", "inc1980": 11021, "inc1990": 20656, "inc1995": 24496, "inc2000": 32149, "inc2003": 33749, "inc2006": 39626, "inc2009": 42325, "inc2012": 44980 }, "geometry": null },
+{ "type": "Feature", "properties": { "State": "Colorado", "inc1980": 10143, "inc1990": 18818, "inc1995": 24865, "inc2000": 32434, "inc2003": 34283, "inc2006": 39491, "inc2009": 41344, "inc2012": 45135 }, "geometry": null },
+{ "type": "Feature", "properties": { "State": "Connecticut", "inc1980": 11532, "inc1990": 25426, "inc1995": 31947, "inc2000": 40702, "inc2003": 43173, "inc2006": 50762, "inc2009": 54397, "inc2012": 58908 }, "geometry": null },
+{ "type": "Feature", "properties": { "State": "Delaware", "inc1980": 10059, "inc1990": 19719, "inc1995": 25391, "inc2000": 31012, "inc2003": 32810, "inc2006": 39131, "inc2009": 39817, "inc2012": 41940 }, "geometry": null },
+{ "type": "Feature", "properties": { "State": "District of Columbia", "inc1980": 12251, "inc1990": 24643, "inc1995": 33045, "inc2000": 38838, "inc2003": 48342, "inc2006": 57746, "inc2009": 66000, "inc2012": 74710 }, "geometry": null },
+{ "type": "Feature", "properties": { "State": "Florida", "inc1980": 9246, "inc1990": 18785, "inc1995": 23512, "inc2000": 27764, "inc2003": 30446, "inc2006": 36720, "inc2009": 37780, "inc2012": 40344 }, "geometry": null },
+{ "type": "Feature", "properties": { "State": "Georgia", "inc1980": 8021, "inc1990": 17121, "inc1995": 22230, "inc2000": 27794, "inc2003": 29442, "inc2006": 32095, "inc2009": 33786, "inc2012": 36869 }, "geometry": null },
+{ "type": "Feature", "properties": { "State": "Hawaii", "inc1980": 10129, "inc1990": 20905, "inc1995": 25584, "inc2000": 27851, "inc2003": 30913, "inc2006": 37023, "inc2009": 42009, "inc2012": 44024 }, "geometry": null },
+{ "type": "Feature", "properties": { "State": "Idaho", "inc1980": 8105, "inc1990": 15304, "inc1995": 19630, "inc2000": 23727, "inc2003": 25911, "inc2006": 29920, "inc2009": 31632, "inc2012": 33749 }, "geometry": null },
+{ "type": "Feature", "properties": { "State": "Illinois", "inc1980": 10454, "inc1990": 20159, "inc1995": 25643, "inc2000": 31856, "inc2003": 33690, "inc2006": 38409, "inc2009": 41411, "inc2012": 44815 }, "geometry": null },
+{ "type": "Feature", "properties": { "State": "Indiana", "inc1980": 8914, "inc1990": 16815, "inc1995": 21845, "inc2000": 26933, "inc2003": 28783, "inc2006": 32288, "inc2009": 33725, "inc2012": 36902 }, "geometry": null },
+{ "type": "Feature", "properties": { "State": "Iowa", "inc1980": 9226, "inc1990": 16683, "inc1995": 21181, "inc2000": 26431, "inc2003": 29043, "inc2006": 33038, "inc2009": 36751, "inc2012": 42126 }, "geometry": null },
+{ "type": "Feature", "properties": { "State": "Kansas", "inc1980": 9880, "inc1990": 17639, "inc1995": 21889, "inc2000": 27374, "inc2003": 29935, "inc2006": 34799, "inc2009": 37916, "inc2012": 41835 }, "geometry": null },
+{ "type": "Feature", "properties": { "State": "Kentucky", "inc1980": 7679, "inc1990": 14751, "inc1995": 19215, "inc2000": 24085, "inc2003": 26252, "inc2006": 29729, "inc2009": 31883, "inc2012": 35041 }, "geometry": null },
+{ "type": "Feature", "properties": { "State": "Louisiana", "inc1980": 8412, "inc1990": 14279, "inc1995": 19541, "inc2000": 23090, "inc2003": 26100, "inc2006": 31821, "inc2009": 35507, "inc2012": 39413 }, "geometry": null },
+{ "type": "Feature", "properties": { "State": "Maine", "inc1980": 7760, "inc1990": 17041, "inc1995": 20240, "inc2000": 25380, "inc2003": 28831, "inc2006": 32095, "inc2009": 36745, "inc2012": 39481 }, "geometry": null },
+{ "type": "Feature", "properties": { "State": "Maryland", "inc1980": 10394, "inc1990": 22088, "inc1995": 26896, "inc2000": 33482, "inc2003": 37331, "inc2006": 43788, "inc2009": 48285, "inc2012": 51971 }, "geometry": null },
+{ "type": "Feature", "properties": { "State": "Massachusetts", "inc1980": 10103, "inc1990": 22248, "inc1995": 28051, "inc2000": 37704, "inc2003": 39815, "inc2006": 46299, "inc2009": 49875, "inc2012": 54687 }, "geometry": null },
+{ "type": "Feature", "properties": { "State": "Michigan", "inc1980": 9801, "inc1990": 18239, "inc1995": 23975, "inc2000": 29127, "inc2003": 30439, "inc2006": 33788, "inc2009": 34025, "inc2012": 37497 }, "geometry": null },
+{ "type": "Feature", "properties": { "State": "Minnesota", "inc1980": 9673, "inc1990": 18784, "inc1995": 24583, "inc2000": 31935, "inc2003": 34443, "inc2006": 38859, "inc2009": 41552, "inc2012": 46227 }, "geometry": null },
+{ "type": "Feature", "properties": { "State": "Mississippi", "inc1980": 6573, "inc1990": 12578, "inc1995": 17185, "inc2000": 20900, "inc2003": 23448, "inc2006": 27028, "inc2009": 30103, "inc2012": 33073 }, "geometry": null },
+{ "type": "Feature", "properties": { "State": "Missouri", "inc1980": 8812, "inc1990": 17407, "inc1995": 22094, "inc2000": 27206, "inc2003": 29252, "inc2006": 32789, "inc2009": 35676, "inc2012": 39049 }, "geometry": null },
+{ "type": "Feature", "properties": { "State": "Montana", "inc1980": 8342, "inc1990": 14743, "inc1995": 18764, "inc2000": 22518, "inc2003": 25920, "inc2006": 30790, "inc2009": 34004, "inc2012": 37370 }, "geometry": null },
+{ "type": "Feature", "properties": { "State": "Nebraska", "inc1980": 8895, "inc1990": 17379, "inc1995": 22196, "inc2000": 27630, "inc2003": 30758, "inc2006": 34440, "inc2009": 38081, "inc2012": 43143 }, "geometry": null },
+{ "type": "Feature", "properties": { "State": "Nevada", "inc1980": 10848, "inc1990": 20248, "inc1995": 25808, "inc2000": 29506, "inc2003": 31266, "inc2006": 38994, "inc2009": 38578, "inc2012": 37361 }, "geometry": null },
+{ "type": "Feature", "properties": { "State": "New Hampshire", "inc1980": 9150, "inc1990": 20231, "inc1995": 25008, "inc2000": 33169, "inc2003": 34702, "inc2006": 39753, "inc2009": 42831, "inc2012": 47058 }, "geometry": null },
+{ "type": "Feature", "properties": { "State": "New Jersey", "inc1980": 10966, "inc1990": 24182, "inc1995": 29277, "inc2000": 37118, "inc2003": 40427, "inc2006": 46763, "inc2009": 50313, "inc2012": 53628 }, "geometry": null },
+{ "type": "Feature", "properties": { "State": "New Mexico", "inc1980": 7940, "inc1990": 14213, "inc1995": 18852, "inc2000": 21931, "inc2003": 25541, "inc2006": 29929, "inc2009": 32992, "inc2012": 35079 }, "geometry": null },
+{ "type": "Feature", "properties": { "State": "New York", "inc1980": 10179, "inc1990": 22322, "inc1995": 27721, "inc2000": 34689, "inc2003": 36574, "inc2006": 44027, "inc2009": 46957, "inc2012": 52095 }, "geometry": null },
+{ "type": "Feature", "properties": { "State": "North Carolina", "inc1980": 7780, "inc1990": 16284, "inc1995": 21938, "inc2000": 26882, "inc2003": 28235, "inc2006": 32247, "inc2009": 34453, "inc2012": 37049 }, "geometry": null },
+{ "type": "Feature", "properties": { "State": "North Dakota", "inc1980": 8642, "inc1990": 15320, "inc1995": 19084, "inc2000": 24708, "inc2003": 29204, "inc2006": 32763, "inc2009": 39530, "inc2012": 51893 }, "geometry": null },
+{ "type": "Feature", "properties": { "State": "Ohio", "inc1980": 9399, "inc1990": 17547, "inc1995": 22887, "inc2000": 27977, "inc2003": 29944, "inc2006": 33320, "inc2009": 35381, "inc2012": 39289 }, "geometry": null },
+{ "type": "Feature", "properties": { "State": "Oklahoma", "inc1980": 9018, "inc1990": 15117, "inc1995": 19394, "inc2000": 23650, "inc2003": 26656, "inc2006": 32391, "inc2009": 35268, "inc2012": 39006 }, "geometry": null },
+{ "type": "Feature", "properties": { "State": "Oregon", "inc1980": 9309, "inc1990": 17201, "inc1995": 22668, "inc2000": 27660, "inc2003": 29340, "inc2006": 33299, "inc2009": 35667, "inc2012": 38786 }, "geometry": null },
+{ "type": "Feature", "properties": { "State": "Pennsylvania", "inc1980": 9353, "inc1990": 18884, "inc1995": 23738, "inc2000": 29504, "inc2003": 31998, "inc2006": 36825, "inc2009": 39578, "inc2012": 43616 }, "geometry": null },
+{ "type": "Feature", "properties": { "State": "Rhode Island", "inc1980": 9227, "inc1990": 19035, "inc1995": 24046, "inc2000": 29113, "inc2003": 31916, "inc2006": 37523, "inc2009": 41003, "inc2012": 44990 }, "geometry": null },
+{ "type": "Feature", "properties": { "State": "South Carolina", "inc1980": 7392, "inc1990": 15101, "inc1995": 19473, "inc2000": 24000, "inc2003": 26132, "inc2006": 29767, "inc2009": 31799, "inc2012": 34266 }, "geometry": null },
+{ "type": "Feature", "properties": { "State": "South Dakota", "inc1980": 7800, "inc1990": 15628, "inc1995": 19848, "inc2000": 25958, "inc2003": 29234, "inc2006": 32030, "inc2009": 36935, "inc2012": 43659 }, "geometry": null },
+{ "type": "Feature", "properties": { "State": "Tennessee", "inc1980": 7711, "inc1990": 15903, "inc1995": 21800, "inc2000": 25946, "inc2003": 28455, "inc2006": 32172, "inc2009": 34089, "inc2012": 37678 }, "geometry": null },
+{ "type": "Feature", "properties": { "State": "Texas", "inc1980": 9439, "inc1990": 16747, "inc1995": 21526, "inc2000": 27752, "inc2003": 29372, "inc2006": 35166, "inc2009": 36484, "inc2012": 41471 }, "geometry": null },
+{ "type": "Feature", "properties": { "State": "Utah", "inc1980": 7671, "inc1990": 14063, "inc1995": 18858, "inc2000": 23436, "inc2003": 24977, "inc2006": 29406, "inc2009": 30875, "inc2012": 34601 }, "geometry": null },
+{ "type": "Feature", "properties": { "State": "Vermont", "inc1980": 7957, "inc1990": 17444, "inc1995": 21359, "inc2000": 26848, "inc2003": 30740, "inc2006": 34871, "inc2009": 38503, "inc2012": 42994 }, "geometry": null },
+{ "type": "Feature", "properties": { "State": "Virginia", "inc1980": 9413, "inc1990": 19543, "inc1995": 24456, "inc2000": 31120, "inc2003": 33671, "inc2006": 39540, "inc2009": 43874, "inc2012": 47082 }, "geometry": null },
+{ "type": "Feature", "properties": { "State": "Washington", "inc1980": 10256, "inc1990": 19268, "inc1995": 23878, "inc2000": 31230, "inc2003": 33332, "inc2006": 38212, "inc2009": 41751, "inc2012": 45413 }, "geometry": null },
+{ "type": "Feature", "properties": { "State": "West Virginia", "inc1980": 7764, "inc1990": 13964, "inc1995": 17913, "inc2000": 21738, "inc2003": 24379, "inc2006": 28206, "inc2009": 32219, "inc2012": 34477 }, "geometry": null },
+{ "type": "Feature", "properties": { "State": "Wisconsin", "inc1980": 9364, "inc1990": 17399, "inc1995": 22573, "inc2000": 28100, "inc2003": 30898, "inc2006": 34405, "inc2009": 36822, "inc2012": 40537 }, "geometry": null },
+{ "type": "Feature", "properties": { "State": "Wyoming", "inc1980": 11018, "inc1990": 16905, "inc1995": 21514, "inc2000": 27372, "inc2003": 32808, "inc2006": 40655, "inc2009": 45705, "inc2012": 48670 }, "geometry": null }
+]
+} ]]></wps:ComplexData>
+      </wps:Data>
+    </wps:Input>
+    <wps:Input>
+      <ows:Identifier>joinfilter</ows:Identifier>
+      <wps:Data>
+        <wps:LiteralData>"STATE_NAME" = "State"</wps:LiteralData>
+      </wps:Data>
+    </wps:Input>
+  </wps:DataInputs>
+  <wps:ResponseForm>
+    <wps:RawDataOutput mimeType="application/json">
+      <ows:Identifier>result</ows:Identifier>
+    </wps:RawDataOutput>
+  </wps:ResponseForm>
+</wps:Execute>
