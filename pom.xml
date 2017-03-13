@@ -4,7 +4,7 @@
 
 	<groupId>com.astuntechnology</groupId>
 	<artifactId>wps</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>2.10</version>
 	<packaging>jar</packaging>
 
 	<name>wps</name>
