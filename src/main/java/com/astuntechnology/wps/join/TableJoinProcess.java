@@ -65,7 +65,7 @@ public class TableJoinProcess extends StaticMethodsProcessFactory {
 
     JoinFeatures joiner = new JoinFeatures();
     SimpleFeatureCollection out = joiner.joint(join, joinSource, target);
-
+    
     return out;
 
   }

@@ -14,10 +14,14 @@ import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.geotools.data.DataStore;
 import org.geotools.data.DataStoreFinder;
 import org.geotools.data.DataUtilities;
+import org.geotools.data.FeatureStore;
 import org.geotools.data.Join;
 import org.geotools.data.Parameter;
+import org.geotools.data.Query;
+import org.geotools.data.shapefile.ShapefileDataStore;
 import org.geotools.data.simple.SimpleFeatureCollection;
 import org.geotools.data.simple.SimpleFeatureIterator;
+import org.geotools.data.store.ContentFeatureSource;
 import org.geotools.factory.CommonFactoryFinder;
 import org.geotools.feature.NameImpl;
 import org.geotools.feature.collection.SortedSimpleFeatureCollection;
@@ -34,6 +38,7 @@ import org.geotools.wfs.v2_0.WFSConfiguration;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.opengis.feature.Feature;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.Name;
@@ -118,7 +123,7 @@ public class TableJoinProcessTest {
 
     Map<String, Object> result = working.get(); // get is BLOCKING
     SimpleFeatureCollection out = (SimpleFeatureCollection) result.get("result");
-
+    assertNotNull(out.getSchema().getCoordinateReferenceSystem());
     assertEquals("Wrong number of states!", 49, out.size());
 
     String state_name = "STATE_NAME";
@@ -145,6 +150,14 @@ public class TableJoinProcessTest {
     SimpleFeature last = DataUtilities.first(sort);
     assertEquals("Mississippi", last.getAttribute(state_name));
     assertEquals(6573, ((Integer) last.getAttribute(inc80)).intValue());
+    
+    //try to make a shapefile!
+    ShapefileDataStore ods = new ShapefileDataStore(DataUtilities.fileToURL(File.createTempFile("test", ".shp")));
+    ods.createSchema(out.getSchema());
+    FeatureStore<SimpleFeatureType, SimpleFeature> store = (FeatureStore<SimpleFeatureType, SimpleFeature>) ods.getFeatureSource();
+    store.addFeatures(out);
+    ContentFeatureSource source = ods.getFeatureSource();
+    System.out.println(source.getSchema().getCoordinateReferenceSystem());
   }
   
 
@@ -178,7 +191,7 @@ public class TableJoinProcessTest {
 
     String jxml = xml.toString("UTF-8");
     xml.close();
-    System.out.println(jxml);
+    //System.out.println(jxml);
     Map<String, Object> input = new KVP("target", statesDS.getFeatureSource(sname).getFeatures(), "source",
         stateUnempDS.getFeatureSource(iname).getFeatures(), "join", jxml);
 

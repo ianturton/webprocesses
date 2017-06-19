@@ -80,7 +80,7 @@ public class JoinFeaturesTest {
     // CQL.toFilter("\"STATE_NAME\" = strCapitalize(\"State\")"), null);
     SimpleFeatureSource ns = joiner.join(statesDS, stateIncDS, j, name2);
  
-    
+    assertNotNull(ns.getSchema().getCoordinateReferenceSystem());
     Query q = new Query(ns.getName().getLocalPart());
     String state_name = "STATE_NAME";
     String persons = "PERSONS";
@@ -150,9 +150,9 @@ public class JoinFeaturesTest {
     q.setSortBy(sortBy);    
     
     List<SimpleFeature> list = DataUtilities.list(ns.getFeatures(q));
-    SimpleFeature nevada = list.get(2);
-    assertEquals("Nevada", nevada.getAttribute(state_name));
-    assertEquals(16.72, ((Double)nevada.getAttribute(fy2009)).doubleValue(),0.00001);
+    SimpleFeature utah = list.get(2);
+    assertEquals("Utah", utah.getAttribute(state_name));
+    assertEquals(30.43, ((Double)utah.getAttribute(fy2009)).doubleValue(),0.00001);
  
     
     /*try (SimpleFeatureIterator itr = ns.getFeatures(q).features()) {
@@ -211,13 +211,13 @@ public class JoinFeaturesTest {
     q.setSortBy(sortBy);    
     
     List<SimpleFeature> list = DataUtilities.list(ns.getFeatures(q));
-    SimpleFeature nevada = list.get(2);
-    assertEquals("Nevada", nevada.getAttribute(state_name));
-    assertEquals(16.72, ((Double)nevada.getAttribute(fy2009)).doubleValue(),0.00001);
+    SimpleFeature utah = list.get(2);
+    assertEquals("Utah", utah.getAttribute(state_name));
+    assertEquals(30.43, ((Double)utah.getAttribute(fy2009)).doubleValue(),0.00001);
  
     for(int i=0;i<props.size();i++) {
       String expected = props.get(i).getPropertyName();
-      assertNotNull("can't find property", nevada.getAttribute(expected));
+      assertNotNull("can't find property", utah.getAttribute(expected));
     }
   }
   @Test

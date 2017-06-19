@@ -4,7 +4,7 @@
 
 	<groupId>com.astuntechnology</groupId>
 	<artifactId>wps</artifactId>
-	<version>2.10</version>
+	<version>2.12-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
 	<name>wps</name>
@@ -12,8 +12,8 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<geotools.version>16.1</geotools.version>
-		<geoserver.version>2.10.1</geoserver.version>
+		<geotools.version>16.3</geotools.version>
+		<geoserver.version>2.12-SNAPSHOT</geoserver.version>
 	</properties>
 	<build>
 		<pluginManagement>

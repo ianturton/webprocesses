@@ -3,8 +3,8 @@ package com.astuntechnology.wps.join;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
+import java.util.logging.Logger;
 
 import org.geotools.data.DataStore;
 import org.geotools.data.DataUtilities;
@@ -17,21 +17,18 @@ import org.geotools.feature.SchemaException;
 import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.filter.visitor.SimplifyingFilterVisitor;
-import org.opengis.feature.Attribute;
+import org.geotools.util.logging.Logging;
 import org.opengis.feature.Property;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.feature.type.AttributeDescriptor;
+import org.opengis.feature.type.GeometryDescriptor;
 import org.opengis.filter.Filter;
 import org.opengis.filter.FilterFactory2;
 import org.opengis.filter.expression.PropertyName;
 
-import java.util.logging.LogRecord;
-import java.util.logging.Logger;
-import org.geotools.util.logging.Logging;
-
 public class JoinFeatures {
-  private static final Logger LOGGER = Logging.getLogger("com.ianturton.cookbook.processes.join.JoinFeatures");
+  private static final Logger LOGGER = Logging.getLogger("com.astuntechnology.wps.join.JoinFeatures");
   FilterFactory2 ff = CommonFactoryFinder.getFilterFactory2();
   SimpleFeatureTypeBuilder ftBuilder = new SimpleFeatureTypeBuilder();
 
@@ -110,6 +107,7 @@ public class JoinFeatures {
       schema = inputFeatures.getSchema();
     } else {
       schema = selectProperties(inputFeatures.getSchema(), props);
+      
       List<AttributeDescriptor> descs = schema.getAttributeDescriptors();
       for (AttributeDescriptor desc : descs) {
         // stop attributes occurring twice if they are in both schema
@@ -144,6 +142,11 @@ public class JoinFeatures {
 
     SimpleFeatureTypeBuilder builder = new SimpleFeatureTypeBuilder();
     builder.setName(schema.getName());
+   
+    GeometryDescriptor geometryDescriptor = joinFeatures.getSchema().getGeometryDescriptor();
+    if(geometryDescriptor!=null)
+        builder.setDefaultGeometry(geometryDescriptor.getLocalName());
+    builder.setCRS(joinFeatures.getSchema().getCoordinateReferenceSystem());
     builder.addAll(schema.getAttributeDescriptors());
     builder.addAll(jSchema.getAttributeDescriptors());
     SimpleFeatureType fSchema = builder.buildFeatureType();
@@ -197,61 +200,66 @@ public class JoinFeatures {
         // We are doing 1:1 matches only - so pick the first matching feature
         // (and hope for the best)
 
-        SimpleFeature match = DataUtilities.first(joinFeatures.subCollection(localFilter));
-        if (match != null) {
-          if (all) {
-            fBuilder.addAll(match.getAttributes());
-          } else {
-            for (PropertyName pn : properties) {
-              String propertyName = pn.getPropertyName();
-              AttributeDescriptor descriptor = jSchema.getDescriptor(propertyName);
-              AttributeDescriptor descriptor2 = schema.getDescriptor(propertyName);
-              if (descriptor != null && descriptor2 == null) {
-                Object attribute = match.getAttribute(propertyName);
-                if (attribute != null) {
-                  fBuilder.set(propertyName, attribute);
+                SimpleFeature match = DataUtilities.first(joinFeatures.subCollection(localFilter));
+                if (match != null) {
+                    if (all) {
+                        fBuilder.addAll(match.getAttributes());
+                    } else {
+                        for (PropertyName pn : properties) {
+                            String propertyName = pn.getPropertyName();
+                            AttributeDescriptor descriptor = jSchema.getDescriptor(propertyName);
+                            AttributeDescriptor descriptor2 = schema.getDescriptor(propertyName);
+                            if (descriptor != null && descriptor2 == null) {
+                                Object attribute = match.getAttribute(propertyName);
+                                if (attribute != null) {
+                                    fBuilder.set(propertyName, attribute);
+                                }
+                            }
+                        }
+                    }
+
+                } else {// not found a match
+                    boolean drop = true;
+                    if(drop) {
+                        fBuilder.buildFeature(f.getID());
+                        continue;
+                    }
+                    if (all) {
+                        fBuilder.addAll(defaultFeature.getAttributes());
+                    } else {
+                        for (PropertyName pn : props) {
+                            String propertyName = pn.getPropertyName();
+                            AttributeDescriptor descriptor = jSchema.getDescriptor(propertyName);
+
+                            if (descriptor != null) {
+                                Object attribute = defaultFeature.getAttribute(propertyName);
+                                if (attribute != null) {
+                                    fBuilder.set(propertyName, attribute);
+                                }
+                            }
+                        }
+                        if (removeOut) {// need an extra attribute
+                            for (String propertyName : outFilterNames) {
+
+                                AttributeDescriptor descriptor = schema.getDescriptor(propertyName);
+
+                                if (descriptor != null) {
+
+                                    Object attribute = f.getAttribute(propertyName);
+                                    if (attribute != null) {
+                                        fBuilder.set(propertyName, attribute);
+                                    }
+                                }
+                            }
+                        }
+
+                    }
+                    LOGGER.fine("No match for " + localFilter);
                 }
-              }
+                out.add(fBuilder.buildFeature(f.getID()));
             }
-          }
-
-        } else {
-          if (all) {
-            fBuilder.addAll(defaultFeature.getAttributes());
-          } else {
-            for (PropertyName pn : props) {
-              String propertyName = pn.getPropertyName();
-              AttributeDescriptor descriptor = jSchema.getDescriptor(propertyName);
-
-              if (descriptor != null) {
-                Object attribute = defaultFeature.getAttribute(propertyName);
-                if (attribute != null) {
-                  fBuilder.set(propertyName, attribute);
-                }
-              }
-            }
-            if (removeOut) {// need an extra attribute
-              for (String propertyName : outFilterNames) {
-
-                AttributeDescriptor descriptor = schema.getDescriptor(propertyName);
-
-                if (descriptor != null) {
-
-                  Object attribute = f.getAttribute(propertyName);
-                  if (attribute != null) {
-                    fBuilder.set(propertyName, attribute);
-                  }
-                }
-              }
-            }
-
-          }
-          LOGGER.fine("No match for " + localFilter);
         }
-        out.add(fBuilder.buildFeature(f.getID()));
-      }
-    }
-    if (outputFilter != null) {
+    if (outputFilter != null && !outputFilter.equals(Filter.INCLUDE)) {
       SimpleFeatureCollection subCollection = DataUtilities.collection(out).subCollection(outputFilter);
 
       if (!removeOut) {

@@ -1,2 +1,3 @@
 com.astuntechnology.wps.join.TableJoinProcess
 com.astuntechnology.wps.picker.PickerProcess
+com.astuntechnology.wps.picker.UnionProcess
