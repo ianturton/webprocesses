@@ -12,7 +12,7 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<geotools.version>16.3</geotools.version>
+		<geotools.version>18-SNAPSHOT</geotools.version>
 		<geoserver.version>2.12-SNAPSHOT</geoserver.version>
 	</properties>
 	<build>
