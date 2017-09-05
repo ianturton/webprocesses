@@ -13,7 +13,7 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<geotools.version>18-SNAPSHOT</geotools.version>
-		<geoserver.version>2.12-SNAPSHOT</geoserver.version>
+		<geoserver.version>${project.version}</geoserver.version>
 	</properties>
 	<build>
 		<pluginManagement>

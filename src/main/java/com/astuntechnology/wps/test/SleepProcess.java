@@ -4,6 +4,7 @@ import java.util.logging.Logger;
 
 import org.geotools.process.factory.DescribeParameter;
 import org.geotools.process.factory.DescribeProcess;
+import org.geotools.process.factory.DescribeResult;
 import org.geotools.process.factory.StaticMethodsProcessFactory;
 import org.geotools.text.Text;
 import org.geotools.util.logging.Logging;
@@ -23,12 +24,14 @@ public class SleepProcess extends StaticMethodsProcessFactory {
 	}
 	
 	@DescribeProcess(title="Sleep", description="Sleeps for a number of seconds")
-	static void sleeper(@DescribeParameter(name="time",defaultValue="60",description="number of seconds to sleep (default 60)",min=0,max=1,minValue=0) 
+	@DescribeResult(type=Integer.class, name="result",description="the number 42")
+	static public int sleeper(@DescribeParameter(name="time",description="number of seconds to sleep",min=1,max=1,minValue=0) 
 		int seconds) {
 		try {
 			Thread.sleep(seconds*1000);
 		} catch (InterruptedException e) {
 			// OK
 		}
+		return 42;
 	}
 }

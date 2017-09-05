@@ -4,5 +4,5 @@
     <bean id="tableJoin" class="com.astuntechnology.wps.join.TableJoinProcess"/>
     <bean id="picker" class="com.astuntechnology.wps.picker.PickerProcess"/>
     <bean id="union"  class="com.astuntechnology.wps.picker.UnionProcess"/>
-    <bean id="sleeper" class="com.astuntechnology.wps.test.SleepProcess">
+    <bean id="sleeper" class="com.astuntechnology.wps.test.SleepProcess"/>
   </beans>
