@@ -7,6 +7,7 @@
 	<formats>
 		<format>zip</format>
 	</formats>
+	<includeBaseDirectory>false</includeBaseDirectory>
 	<fileSets>
 		<fileSet>
 			<directory>${project.basedir}</directory>
@@ -21,7 +22,10 @@
 			<directory>${project.build.directory}</directory>
 			<outputDirectory>/</outputDirectory>
 			<includes>
-				<include>*.jar</include>
+				<include>gt-csv*.jar</include>
+				<include>gt-process*.jar</include>
+				<include>gt-xml*.jar</include>
+				<include>gt-xsd-wfs*.jar</include>
 			</includes>
 			<excludes>
 				<exclude>*sources*</exclude>
