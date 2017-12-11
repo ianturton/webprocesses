@@ -13,11 +13,15 @@ import org.geotools.util.logging.Logging;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.util.InternationalString;
 
+import com.vividsolutions.jts.geom.CoordinateSequence;
 import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.Polygon;
 
 @SuppressWarnings("rawtypes")
 public class PickAndUnionProcess extends StaticMethodsProcessFactory {
 	private static final Logger LOGGER = Logging.getLogger(com.astuntechnology.wps.picker.PickAndUnionProcess.class);
+	static private final GeometryFactory GF = new GeometryFactory();
 
 	public PickAndUnionProcess() {
 		this(Text.text("Picker"), "PickerAndUnion", PickAndUnionProcess.class);
@@ -37,13 +41,12 @@ public class PickAndUnionProcess extends StaticMethodsProcessFactory {
 			@DescribeParameter(name = "collection", description = "The features to be searched", min = 1) SimpleFeatureCollection collection,
 			@DescribeParameter(name = "filter", description = "the filter to be used for the search (CQL or OGC)", min = 1) String filter,
 			@DescribeParameter(name = "geometry", description = "Optional geometry to union with the results of the filter.", min = 0) Geometry geom,
-			@DescribeParameter(name = "subtract", description = "If true then the matching geometries are removed from geometry, default false", 
-			    min = 0) Boolean subtract) {
+			@DescribeParameter(name = "subtract", description = "If true then the matching geometries are removed from geometry, default false", min = 0) Boolean subtract) {
 		boolean sub = false;
-		if(subtract!=null) {
+		if (subtract != null) {
 			sub = subtract.booleanValue();
 		}
-		Geometry ret = null;
+		Geometry ret = GF.createPolygon((CoordinateSequence)null);
 		Geometry union = null;
 		SimpleFeatureCollection collection1 = PickerProcess.getFeatures(collection, filter);
 		// now union the results
@@ -60,21 +63,25 @@ public class PickAndUnionProcess extends StaticMethodsProcessFactory {
 			}
 		}
 		if (union == null) {
-			LOGGER.info("Didn't find any new features to union");
-			ret = geom;
+			LOGGER.fine("Didn't find any new features to union");
+			if(geom != null) {
+				ret = geom;
+			}
 		} else if (geom != null) {
 
-			// remove the matching geoms from the input geom
+			// remove the matching geoms from the input geom if subtract is true
 			if (sub) {
-				LOGGER.info("input geometry, returning difference of input and result of query");
+				LOGGER.fine("input geometry, returning difference of input and result of query");
 				ret = geom.difference(union);
 			} else { // else we union it
-				LOGGER.info("input geometry, returning union of input and result of query");
+				LOGGER.fine("input geometry, returning union of input and result of query");
 				ret = geom.union(union);
 			}
 		} else {
-			LOGGER.info("No input geometry, returning result of query");
-			ret = union;
+			LOGGER.fine("No input geometry, returning result of query");
+			if (union != null) {
+				ret = union;
+			}
 		}
 		return ret;
 	}
