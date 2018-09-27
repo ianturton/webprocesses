@@ -18,7 +18,7 @@ import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
 import org.opengis.util.InternationalString;
 
-import com.vividsolutions.jts.geom.Geometry;
+import org.locationtech.jts.geom.Geometry;
 
 public class UnionProcess extends StaticMethodsProcessFactory {
 	private static final Logger LOGGER = Logging.getLogger(com.astuntechnology.wps.picker.UnionProcess.class);

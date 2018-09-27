@@ -1,7 +1,11 @@
 package com.astuntechnology.wps.picker;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -10,7 +14,8 @@ import java.util.concurrent.ExecutionException;
 import org.geoserver.wps.WPSException;
 import org.geotools.data.DataStore;
 import org.geotools.data.DataStoreFinder;
-import org.geotools.factory.CommonFactoryFinder;
+import org.geotools.data.wfs.WFSDataStoreFactory;
+import org.geotools.data.wfs.impl.WFSDataAccessFactory;
 import org.geotools.feature.NameImpl;
 import org.geotools.filter.FilterTransformer;
 import org.geotools.geometry.jts.WKTReader2;
@@ -18,17 +23,14 @@ import org.geotools.process.ProcessExecutor;
 import org.geotools.process.Processors;
 import org.geotools.process.Progress;
 import org.geotools.util.KVP;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.opengis.feature.type.Name;
-import org.opengis.filter.FilterFactory2;
 
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.io.ParseException;
-import com.vividsolutions.jts.io.WKTReader;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.io.ParseException;
 
 public class PickAndUnionTest {
 	private static DataStore statesDS;
@@ -314,7 +316,7 @@ public class PickAndUnionTest {
 		}
 
 	}
-	
+
 	@Test
 	public void testInvalidInputFilterGeometry()
 			throws IOException, InterruptedException, ExecutionException, ParseException {
@@ -327,19 +329,67 @@ public class PickAndUnionTest {
 		String sname = statesDS.getTypeNames()[0];
 		WKTReader2 wktr = new WKTReader2();
 		// Bow Tie
-		String wkt = 
-				"Polygon ((-88.26396314147442013 40.81507372009732393, -77.9880668633561811 36.57353355423575181, -77.68197633592288298 40.98998259291636259, -87.91414539583635701 36.57353355423575181, -88.26396314147442013 40.81507372009732393))";
+		String wkt = "Polygon ((-88.26396314147442013 40.81507372009732393, -77.9880668633561811 36.57353355423575181, -77.68197633592288298 40.98998259291636259, -87.91414539583635701 36.57353355423575181, -88.26396314147442013 40.81507372009732393))";
 		Map<String, Object> input = new KVP("collection", statesDS.getFeatureSource(sname).getFeatures(), "filter",
-				"Intersects(the_geom,"+wkt+")");
+				"Intersects(the_geom," + wkt + ")");
 		try {
 			Progress working = engine.submit(process, input);
 
 			Map<String, Object> result = working.get(); // get is BLOCKING
 			Geometry out = (Geometry) result.get("result");
-			//currently this doesn't throw an error but I think it should
-			//fail();
+			// currently this doesn't throw an error but I think it should
+			// fail();
 		} catch (ExecutionException | WPSException e) {
-			//ok
+			// ok
+		}
+
+	}
+
+	@Test
+	public void testISHARE_6910() throws ParseException, IOException, InterruptedException {
+		Map<String,Object> params = new HashMap<>();
+		params.put(WFSDataStoreFactory.URL.key,"http://localhost:9080/geoserver/wfs?version=1.1.0");
+				
+		DataStore wfs = DataStoreFinder.getDataStore(params );
+		
+		if(wfs==null) {
+			System.err.println("Can't connect to WFS server, did you open the tunnel?");
+			fail();
+		}
+		Name name = new NameImpl("PickerAndUnion", "getFeatures");
+
+		org.geotools.process.Process process = Processors.createProcess(name);
+		assertNotNull("failed to get process", process);
+		ProcessExecutor engine = Processors.newProcessExecutor(2);
+		assertNotNull(engine);
+		WKTReader2 wktr = new WKTReader2();
+		Geometry out = null;
+		Geometry geom1 = wktr.read(
+				"MULTIPOLYGON(((514084.53071362 160842.60805066,514163.03071362 160797.35805066,514163.03071362 160797.35805066,514126.15571362 160764.48305066,514126.15571362 160764.48305066,514077.03071362 160810.98305066,514077.03071362 160810.98305066,514076.40571362 160819.98305066,514076.40571362 160819.98305066,514084.53071362 160842.60805066)))");
+		Map<String, Object> input1 = new KVP("collection", wfs.getFeatureSource("astun:topographicarea").getFeatures(), "filter",
+				"intersects(wkb_geometry,POINT(514126.53071362 160831.35805066))", "geometry", geom1, "subtract", Boolean.FALSE);
+		try {
+			Progress working = engine.submit(process, input1);
+
+			Map<String, Object> result = working.get(); // get is BLOCKING
+			out = (Geometry) result.get("result");
+			//System.out.println(out);
+			
+		} catch (ExecutionException | WPSException e) {
+			fail();
+		}
+		
+		Map<String, Object> input = new KVP("collection", wfs.getFeatureSource("astun:topographicarea").getFeatures(), "filter",
+				"intersects(wkb_geometry,POINT(514126.53071362 160831.35805066))", "geometry", out, "subtract", Boolean.TRUE);
+		try {
+			Progress working = engine.submit(process, input);
+
+			Map<String, Object> result = working.get(); // get is BLOCKING
+			Geometry out1 = (Geometry) result.get("result");
+			//System.out.println(out1);
+			assertTrue(out1.isValid());
+		} catch (ExecutionException | WPSException e) {
+			fail();
 		}
 
 	}

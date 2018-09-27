@@ -13,16 +13,18 @@ import org.geotools.util.logging.Logging;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.util.InternationalString;
 
-import com.vividsolutions.jts.geom.CoordinateSequence;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.Polygon;
+import com.astuntechnology.oraclefixer.DeSpiker;
+import org.locationtech.jts.geom.CoordinateSequence;
+import org.locationtech.jts.geom.Geometry;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.Polygon;
 
 @SuppressWarnings("rawtypes")
 public class PickAndUnionProcess extends StaticMethodsProcessFactory {
 	private static final Logger LOGGER = Logging.getLogger(com.astuntechnology.wps.picker.PickAndUnionProcess.class);
 	static private final GeometryFactory GF = new GeometryFactory();
 
+	static private final DeSpiker despiker = new DeSpiker();
 	public PickAndUnionProcess() {
 		this(Text.text("Picker"), "PickerAndUnion", PickAndUnionProcess.class);
 	}
@@ -83,6 +85,7 @@ public class PickAndUnionProcess extends StaticMethodsProcessFactory {
 				ret = union;
 			}
 		}
+		ret=despiker.despike(ret);
 		return ret;
 	}
 }

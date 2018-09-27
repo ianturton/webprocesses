@@ -3,7 +3,6 @@ package com.astuntechnology.wps.picker;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Locale;
 import java.util.logging.Logger;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -11,7 +10,6 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.geoserver.wps.WPSException;
 import org.geotools.data.DataUtilities;
 import org.geotools.data.simple.SimpleFeatureCollection;
-import org.geotools.data.simple.SimpleFeatureIterator;
 import org.geotools.filter.text.cql2.CQLException;
 import org.geotools.filter.text.ecql.ECQL;
 import org.geotools.process.factory.DescribeParameter;
@@ -26,8 +24,6 @@ import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.filter.Filter;
 import org.opengis.util.InternationalString;
 import org.xml.sax.SAXException;
-
-import com.vividsolutions.jts.geom.Geometry;
 
 /**
  * Take a featureID or location and return the feature that matches it (or contains it)
@@ -57,13 +53,14 @@ public class PickerProcess extends StaticMethodsProcessFactory {
             @DescribeParameter(name = "filter", description = "the filter to be used for the search (CQL or OGC)", min = 1) String filter) {
         SimpleFeatureCollection ret = null;
         Filter f = parseFilterString(filter);
-        LOGGER.info("filter is " + f);
+       // LOGGER.info("filter is " + f);
         if (f == null) {
             // failed to parse the filter
             ret = DataUtilities.collection(new ArrayList<SimpleFeature>());
         } else {
 
             ret = collection.subCollection(f);
+            //System.out.println(DataUtilities.first(ret).getDefaultGeometry());
         }
         return ret;
     }
