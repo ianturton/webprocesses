@@ -1,5 +1,7 @@
 package com.astuntechnology.wps.picker;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Logger;
 
 import org.geotools.data.simple.SimpleFeatureCollection;
@@ -25,6 +27,7 @@ public class PickAndUnionProcess extends StaticMethodsProcessFactory {
 	static private final GeometryFactory GF = new GeometryFactory();
 
 	static private final DeSpiker despiker = new DeSpiker();
+
 	public PickAndUnionProcess() {
 		this(Text.text("Picker"), "PickerAndUnion", PickAndUnionProcess.class);
 	}
@@ -48,7 +51,7 @@ public class PickAndUnionProcess extends StaticMethodsProcessFactory {
 		if (subtract != null) {
 			sub = subtract.booleanValue();
 		}
-		Geometry ret = GF.createPolygon((CoordinateSequence)null);
+		Geometry ret = GF.createPolygon((CoordinateSequence) null);
 		Geometry union = null;
 		SimpleFeatureCollection collection1 = PickerProcess.getFeatures(collection, filter);
 		// now union the results
@@ -57,16 +60,18 @@ public class PickAndUnionProcess extends StaticMethodsProcessFactory {
 				SimpleFeature f = features.next();
 				Geometry defaultGeometry = (Geometry) f.getDefaultGeometry();
 				if (union == null) {
-					union = defaultGeometry;
+					if (!defaultGeometry.isEmpty())
+						union = defaultGeometry;
 
 				} else {
-					union = union.union(defaultGeometry);
+					if (!defaultGeometry.isEmpty())
+						union = union.union(defaultGeometry);
 				}
 			}
 		}
 		if (union == null) {
 			LOGGER.fine("Didn't find any new features to union");
-			if(geom != null) {
+			if (geom != null) {
 				ret = geom;
 			}
 		} else if (geom != null) {
@@ -85,7 +90,9 @@ public class PickAndUnionProcess extends StaticMethodsProcessFactory {
 				ret = union;
 			}
 		}
-		ret=despiker.despike(ret);
+
+		ret = despiker.despike(ret);
+		
 		return ret;
 	}
 }

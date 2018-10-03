@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Logger;
 
 import org.apache.commons.cli.CommandLine;
@@ -160,19 +161,23 @@ public class DeSpiker {
 		LineString exteriorRing = in.getExteriorRing();
 		ArrayList<Coordinate> outRing = cleanRing(exteriorRing);
 		LinearRing shell;
-		LinearRing[] rings = new LinearRing[in.getNumInteriorRing()];
-		if (outRing.isEmpty()) {
+		List<LinearRing> rings = new ArrayList<>();
+		if (outRing.isEmpty() || outRing.size()<2) {
 			shell = null;
-			rings = new LinearRing[0];
+			return null;
+			
 		} else {
 			shell = GF.createLinearRing(outRing.toArray(new Coordinate[] {}));
 
-			for (int i = 0; i < rings.length; i++) {
+			for (int i = 0; i < in.getNumInteriorRing(); i++) {
 				ArrayList<Coordinate> ring = cleanRing((LinearRing) in.getInteriorRingN(i));
-				rings[i] = GF.createLinearRing(ring.toArray(new Coordinate[] {}));
+				LinearRing lRing = GF.createLinearRing(ring.toArray(new Coordinate[] {}));
+				
+				if(!lRing.isEmpty())
+					rings.add(lRing);
 			}
 		}
-		Polygon out = GF.createPolygon(shell, rings);
+		Polygon out = GF.createPolygon(shell, rings.toArray(new LinearRing[] {}));
 		return out;
 
 	}
@@ -346,7 +351,9 @@ public class DeSpiker {
 			ArrayList<Geometry> geomList = new ArrayList<>();
 			for(int i=0;i<n;i++) {
 				Geometry g = in.getGeometryN(i);
-				geomList.add(despike(g));
+				Geometry despiked = despike(g);
+				if(despiked!=null)
+					geomList.add(despiked);
 			}
 			return GF.buildGeometry(geomList);
 		}

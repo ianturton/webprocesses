@@ -60,7 +60,7 @@ public class PickerProcess extends StaticMethodsProcessFactory {
         } else {
 
             ret = collection.subCollection(f);
-            //System.out.println(DataUtilities.first(ret).getDefaultGeometry());
+            System.out.println(DataUtilities.first(ret).getDefaultGeometry());
         }
         return ret;
     }
