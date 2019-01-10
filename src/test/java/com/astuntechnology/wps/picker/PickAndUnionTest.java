@@ -4,6 +4,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.junit.Assume.assumeTrue;
 
 import java.io.File;
 import java.io.IOException;
@@ -11,6 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
+import org.apache.log4j.lf5.PassingLogRecordFilter;
 import org.geoserver.wps.WPSException;
 import org.geotools.data.DataStore;
 import org.geotools.data.DataStoreFinder;
@@ -23,6 +25,7 @@ import org.geotools.process.ProcessExecutor;
 import org.geotools.process.Processors;
 import org.geotools.process.Progress;
 import org.geotools.util.KVP;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.opengis.feature.type.Name;
@@ -44,6 +47,29 @@ public class PickAndUnionTest {
 		statesDS = DataStoreFinder.getDataStore(params);
 		assertNotNull(statesDS);
 		transform.setIndentation(2);
+	}
+
+	private DataStore wfs;
+	private boolean onLine=true;
+
+	@Before
+	public void setUp() {
+		Map<String, Object> params = new HashMap<>();
+		params.put(WFSDataStoreFactory.URL.key, "http://localhost:9080/geoserver/wfs?version=1.1.0");
+	
+		try {
+			wfs = DataStoreFinder.getDataStore(params);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	
+		if (wfs == null) {
+			System.err.println("Can't connect to WFS server, did you open the tunnel?");
+			onLine = false;
+			return;
+		}
+		onLine = true;
 	}
 
 	@Test
@@ -347,15 +373,7 @@ public class PickAndUnionTest {
 
 	@Test
 	public void testISHARE_6910() throws ParseException, IOException, InterruptedException {
-		Map<String, Object> params = new HashMap<>();
-		params.put(WFSDataStoreFactory.URL.key, "http://localhost:9080/geoserver/wfs?version=1.1.0");
-
-		DataStore wfs = DataStoreFinder.getDataStore(params);
-
-		if (wfs == null) {
-			System.err.println("Can't connect to WFS server, did you open the tunnel?");
-			fail();
-		}
+		assumeTrue("Not connected", onLine);
 		Name name = new NameImpl("PickerAndUnion", "getFeatures");
 
 		org.geotools.process.Process process = Processors.createProcess(name);
@@ -398,15 +416,7 @@ public class PickAndUnionTest {
 
 	@Test
 	public void testISHARE_6952() throws ParseException, IOException, InterruptedException {
-		Map<String, Object> params = new HashMap<>();
-		params.put(WFSDataStoreFactory.URL.key, "http://localhost:9080/geoserver/wfs?version=1.1.0");
-
-		DataStore wfs = DataStoreFinder.getDataStore(params);
-
-		if (wfs == null) {
-			System.err.println("Can't connect to WFS server, did you open the tunnel?");
-			fail();
-		}
+		assumeTrue("Not connected", onLine);
 		Name name = new NameImpl("PickerAndUnion", "getFeatures");
 
 		org.geotools.process.Process process = Processors.createProcess(name);
@@ -433,13 +443,13 @@ public class PickAndUnionTest {
 		}
 
 		Map<String, Object> input = new KVP("collection", wfs.getFeatureSource("astun:topographicarea").getFeatures(),
-				"filter", "intersects(wkb_geometry,POINT(515698.625 168296.3125))", "geometry", out,
-				"subtract", Boolean.TRUE);
+				"filter", "intersects(wkb_geometry,POINT(515698.625 168296.3125))", "geometry", out, "subtract",
+				Boolean.TRUE);
 		try {
 			Progress working = engine.submit(process, input);
 
 			Map<String, Object> result = working.get(); // get is BLOCKING
-			
+
 			Geometry out1 = (Geometry) result.get("result");
 			System.out.println(out1);
 			assertTrue(out1.isValid());
@@ -448,18 +458,10 @@ public class PickAndUnionTest {
 		}
 
 	}
-	
+
 	@Test
 	public void testISHARE_6952b() throws ParseException, IOException, InterruptedException {
-		Map<String, Object> params = new HashMap<>();
-		params.put(WFSDataStoreFactory.URL.key, "http://localhost:9080/geoserver/wfs?version=1.1.0");
-
-		DataStore wfs = DataStoreFinder.getDataStore(params);
-
-		if (wfs == null) {
-			System.err.println("Can't connect to WFS server, did you open the tunnel?");
-			fail();
-		}
+		assumeTrue("Not connected", onLine);
 		Name name = new NameImpl("PickerAndUnion", "getFeatures");
 
 		org.geotools.process.Process process = Processors.createProcess(name);
@@ -485,19 +487,11 @@ public class PickAndUnionTest {
 			fail();
 		}
 
-
 	}
+
 	@Test
 	public void testISHARE_6952c() throws ParseException, IOException, InterruptedException {
-		Map<String, Object> params = new HashMap<>();
-		params.put(WFSDataStoreFactory.URL.key, "http://localhost:9080/geoserver/wfs?version=1.1.0");
-
-		DataStore wfs = DataStoreFinder.getDataStore(params);
-
-		if (wfs == null) {
-			System.err.println("Can't connect to WFS server, did you open the tunnel?");
-			fail();
-		}
+		assumeTrue("Not connected", onLine);
 		Name name = new NameImpl("PickerAndUnion", "getFeatures");
 
 		org.geotools.process.Process process = Processors.createProcess(name);
@@ -523,13 +517,13 @@ public class PickAndUnionTest {
 			fail();
 		}
 		Map<String, Object> input = new KVP("collection", wfs.getFeatureSource("astun:topographicarea").getFeatures(),
-				"filter", "intersects(wkb_geometry,POINT(515612.625 168384.375))", "geometry", out,
-				"subtract", Boolean.TRUE);
+				"filter", "intersects(wkb_geometry,POINT(515612.625 168384.375))", "geometry", out, "subtract",
+				Boolean.TRUE);
 		try {
 			Progress working = engine.submit(process, input);
 
 			Map<String, Object> result = working.get(); // get is BLOCKING
-			
+
 			Geometry out1 = (Geometry) result.get("result");
 			System.out.println(out1);
 			assertTrue(out1.isValid());
