@@ -39,6 +39,9 @@ public class PickAndUnionTest {
 	private static DataStore statesDS;
 	static FilterTransformer transform = new FilterTransformer();
 	private static GeometryFactory gf = new GeometryFactory();
+	
+	private DataStore wfs;
+	private boolean onLine=true;
 
 	@BeforeClass
 	public static void setup() throws IOException {
@@ -49,11 +52,8 @@ public class PickAndUnionTest {
 		transform.setIndentation(2);
 	}
 
-	private DataStore wfs;
-	private boolean onLine=true;
-
 	@Before
-	public void setUp() {
+	public void beforeTest() {
 		Map<String, Object> params = new HashMap<>();
 		params.put(WFSDataStoreFactory.URL.key, "http://localhost:9080/geoserver/wfs?version=1.1.0");
 	
@@ -64,12 +64,11 @@ public class PickAndUnionTest {
 			e.printStackTrace();
 		}
 	
+		onLine = true;
 		if (wfs == null) {
 			System.err.println("Can't connect to WFS server, did you open the tunnel?");
 			onLine = false;
-			return;
 		}
-		onLine = true;
 	}
 
 	@Test
@@ -435,7 +434,7 @@ public class PickAndUnionTest {
 
 			Map<String, Object> result = working.get(); // get is BLOCKING
 			out = (Geometry) result.get("result");
-			System.out.println(out);
+			//System.out.println(out);
 			assertTrue(out.isValid());
 		} catch (ExecutionException | WPSException e) {
 			e.printStackTrace();
@@ -451,7 +450,7 @@ public class PickAndUnionTest {
 			Map<String, Object> result = working.get(); // get is BLOCKING
 
 			Geometry out1 = (Geometry) result.get("result");
-			System.out.println(out1);
+			//System.out.println(out1);
 			assertTrue(out1.isValid());
 		} catch (ExecutionException | WPSException e) {
 			fail();
@@ -480,7 +479,7 @@ public class PickAndUnionTest {
 
 			Map<String, Object> result = working.get(); // get is BLOCKING
 			out = (Geometry) result.get("result");
-			System.out.println(out);
+			//System.out.println(out);
 			assertTrue(out.isValid());
 		} catch (ExecutionException | WPSException e) {
 			e.printStackTrace();
@@ -510,7 +509,7 @@ public class PickAndUnionTest {
 
 			Map<String, Object> result = working.get(); // get is BLOCKING
 			out = (Geometry) result.get("result");
-			System.out.println(out);
+			//System.out.println(out);
 			assertTrue(out.isValid());
 		} catch (ExecutionException | WPSException e) {
 			e.printStackTrace();
@@ -525,9 +524,101 @@ public class PickAndUnionTest {
 			Map<String, Object> result = working.get(); // get is BLOCKING
 
 			Geometry out1 = (Geometry) result.get("result");
-			System.out.println(out1);
+			//System.out.println(out1);
 			assertTrue(out1.isValid());
 		} catch (ExecutionException | WPSException e) {
+			fail();
+		}
+
+	}
+	
+	@Test
+	public void testMorrisonsRestrictions() throws ParseException, IOException, InterruptedException {
+		assumeTrue("Not connected", onLine);
+		Name name = new NameImpl("PickerAndUnion", "getFeatures");
+
+		org.geotools.process.Process process = Processors.createProcess(name);
+		assertNotNull("failed to get process", process);
+		ProcessExecutor engine = Processors.newProcessExecutor(2);
+		assertNotNull(engine);
+		WKTReader2 wktr = new WKTReader2();
+		Geometry out = null;
+		Geometry geom1 = null;
+		Map<String, Object> input1 = new KVP("collection", wfs.getFeatureSource("astun:topographicarea").getFeatures(),
+				"filter", "intersects(wkb_geometry,Point (545229.25045062520075589 179802.12643999996362254))", "geometry", geom1, "subtract",
+				Boolean.FALSE, "organisation",/*"peabody-org-uk"*/"morrisonus");
+		try {
+			Progress working = engine.submit(process, input1);
+
+			Map<String, Object> result = working.get(); // get is BLOCKING
+			out = (Geometry) result.get("result");
+			assertNotNull(out);
+			//System.out.println(out);
+			assertTrue(out.isValid());
+		} catch (ExecutionException | WPSException e) {
+			e.printStackTrace();
+			fail();
+		}
+		Map<String, Object> input = new KVP("collection", wfs.getFeatureSource("astun:topographicarea").getFeatures(),
+				"filter", "intersects(wkb_geometry,Point (614336.44912745791953057 158138.27867684629745781))", "geometry", geom1, "subtract",
+				Boolean.FALSE, "organisation","morrisonus");
+		try {
+			Progress working = engine.submit(process, input);
+
+			Map<String, Object> result = working.get(); // get is BLOCKING
+
+			Geometry out1 = (Geometry) result.get("result");
+			// we are outside the Morrison's area so no result.
+			//System.out.println(out1);
+			assertTrue(out1.isEmpty());
+
+		} catch (ExecutionException | WPSException e) {
+			e.printStackTrace();
+			fail();
+		}
+
+	}
+	@Test
+	public void testPeabodyRestrictions() throws ParseException, IOException, InterruptedException {
+		assumeTrue("Not connected", onLine);
+		Name name = new NameImpl("PickerAndUnion", "getFeatures");
+
+		org.geotools.process.Process process = Processors.createProcess(name);
+		assertNotNull("failed to get process", process);
+		ProcessExecutor engine = Processors.newProcessExecutor(2);
+		assertNotNull(engine);
+		
+		Geometry out = null;
+		Geometry geom1 = null;
+		Map<String, Object> input1 = new KVP("collection", wfs.getFeatureSource("astun:topographicarea").getFeatures(),
+				"filter", "intersects(wkb_geometry,Point (545229.25045062520075589 179802.12643999996362254))", "geometry", geom1, "subtract",
+				Boolean.FALSE, "organisation","peabody-org-uk");
+		try {
+			Progress working = engine.submit(process, input1);
+
+			Map<String, Object> result = working.get(); // get is BLOCKING
+			out = (Geometry) result.get("result");
+			assertNotNull(out);
+			assertTrue(out.isValid());
+		} catch (ExecutionException | WPSException e) {
+			e.printStackTrace();
+			fail();
+		}
+		Map<String, Object> input = new KVP("collection", wfs.getFeatureSource("astun:topographicarea").getFeatures(),
+				"filter", "intersects(wkb_geometry,Point (614336.44912745791953057 158138.27867684629745781))", "geometry", geom1, "subtract",
+				Boolean.FALSE, "organisation","peabody-org-uk");
+		try {
+			Progress working = engine.submit(process, input);
+
+			Map<String, Object> result = working.get(); // get is BLOCKING
+
+			Geometry out1 = (Geometry) result.get("result");
+			// we are outside the Morrison's area so no result.
+			//System.out.println(out1);
+			assertTrue(out1.isEmpty());
+
+		} catch (ExecutionException | WPSException e) {
+			e.printStackTrace();
 			fail();
 		}
 
