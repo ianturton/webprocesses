@@ -6,4 +6,5 @@
     <bean id="pickerandunion" class="com.astuntechnology.wps.picker.PickAndUnionProcess"/>
     <bean id="union"  class="com.astuntechnology.wps.picker.UnionProcess"/>
     <bean id="sleeper" class="com.astuntechnology.wps.test.SleepProcess"/>
+    <bean id="kvpTest" class="com.astuntechnology.wps.test.KVPTestProcess"/>
   </beans>

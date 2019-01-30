@@ -12,13 +12,13 @@ import org.opengis.util.InternationalString;
 
 
 
-public class SleepProcess extends StaticMethodsProcessFactory {
+public class SleepProcess extends StaticMethodsProcessFactory<SleepProcess> {
 	private static final Logger LOGGER = Logging.getLogger(com.astuntechnology.wps.test.SleepProcess.class);
 
 	public SleepProcess() {
 		this(Text.text("Sleep"), "Sleep", SleepProcess.class);
 	}
-	public SleepProcess(InternationalString title, String namespace, Class targetClass) {
+	public SleepProcess(InternationalString title, String namespace, Class<SleepProcess> targetClass) {
 		super(title, namespace, targetClass);
 		
 	}
