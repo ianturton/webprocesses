@@ -1,10 +1,13 @@
 package com.astuntechnology.wps.picker;
 
+import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.logging.Logger;
 
 import org.geotools.data.DataStore;
@@ -34,6 +37,7 @@ import com.astuntechnology.oraclefixer.DeSpiker;
 
 @SuppressWarnings("rawtypes")
 public class PickAndUnionProcess extends StaticMethodsProcessFactory {
+	private static final String LIMITS_CONF = "limits.conf";
 	private static final Logger LOGGER = Logging.getLogger(com.astuntechnology.wps.picker.PickAndUnionProcess.class);
 	static private final GeometryFactory GF = new GeometryFactory();
 	static private final FilterFactory2 FF = CommonFactoryFinder.getFilterFactory2();
@@ -49,17 +53,23 @@ public class PickAndUnionProcess extends StaticMethodsProcessFactory {
 
 		super(title, namespace, targetClass);
 		if (ds == null) {
-			Map<String, Object> params = new HashMap<>();
-			// TODO: read this in from a file
-			params.put(PostgisNGDataStoreFactory.DBTYPE.key, PostgisNGDataStoreFactory.DBTYPE.sample);
-			params.put(PostgisNGDataStoreFactory.DATABASE.key, "dataservices");
-			params.put(PostgisNGDataStoreFactory.USER.key, "viewer");
-			params.put(PostgisNGDataStoreFactory.PASSWD.key, "viewer");
-			params.put(PostgisNGDataStoreFactory.PORT.key, 5436);
-			params.put(PostgisNGDataStoreFactory.SCHEMA.key, "public");
-			params.put(PostgisNGDataStoreFactory.HOST.key, "localhost");
+
 			try {
-				ds = DataStoreFinder.getDataStore(params);
+
+				Properties props = new Properties();
+				props.load(this.getClass().getResourceAsStream(LIMITS_CONF));
+				String home = System.getProperty("user.home");
+				File homeDir = new File(home);
+				if (homeDir.exists()) {
+					File input = new File(homeDir, LIMITS_CONF);
+					if (input.exists()) {
+						LOGGER.info("Overriding props with " + LIMITS_CONF + " file");
+						props.load(new FileReader(input));
+						LOGGER.info("values set in " + props.getProperty("host") + " will be used");
+					}
+				}
+
+				ds = DataStoreFinder.getDataStore(props);
 
 			} catch (IOException e) {
 				LOGGER.info("failed to open restrictions database. " + e.getMessage());
@@ -82,16 +92,17 @@ public class PickAndUnionProcess extends StaticMethodsProcessFactory {
 			sub = subtract.booleanValue();
 		}
 		Filter and = Filter.INCLUDE;
-		Function xFunction = null;
-		if (organisation != null && !organisation.isEmpty()) {
 
+		if (organisation != null && !organisation.isEmpty()) {
+			LOGGER.info("checking for " + organisation);
 			try {
 				SimpleFeatureSource source = ds.getFeatureSource("limited_to");
 
 				Filter orgFilter = FF.and(FF.equal(FF.property("org"), FF.literal(organisation), false),
 						FF.equal(FF.property("product"), FF.literal("ospremium"), false));
 				SimpleFeatureCollection features = source.getFeatures(orgFilter);
-				//System.out.println("got " + features.size() + " featuresi with " + orgFilter);
+				// System.out.println("got " + features.size() + " featuresi with " +
+				// orgFilter);
 				String localGeomName = collection.getSchema().getGeometryDescriptor().getLocalName();
 				if (features.size() < 10) {
 					try (SimpleFeatureIterator itr = features.features()) {
@@ -102,11 +113,12 @@ public class PickAndUnionProcess extends StaticMethodsProcessFactory {
 									FF.literal(feature.getDefaultGeometry())));
 						}
 						if (filters.isEmpty())
-							and = null;
+							and = Filter.EXCLUDE;
 						else if (filters.size() > 1)
 							and = FF.and(filters);
 						else
 							and = filters.get(0);
+						
 					}
 				} else {
 					// union the geoms together for the filter?
@@ -115,24 +127,21 @@ public class PickAndUnionProcess extends StaticMethodsProcessFactory {
 						while (itr.hasNext()) {
 							SimpleFeature feature = (SimpleFeature) itr.next();
 							geoms.add((Geometry) feature.getDefaultGeometry());
-					}
-						GeometryCollection geometryCollection = (GeometryCollection) GF.buildGeometry(geoms);
+						}
+						if (geoms.isEmpty()) {
+							and = Filter.EXCLUDE;
+						} else {
+							GeometryCollection geometryCollection = (GeometryCollection) GF.buildGeometry(geoms);
 
-				        Geometry union = geometryCollection.union();
-				        and = FF.intersects(FF.property(localGeomName), FF.literal(union));
+							Geometry union = geometryCollection.union();
+							and = FF.intersects(FF.property(localGeomName), FF.literal(union));
+						}
 					}
 				}
 			} catch (IOException e) { // TODO Auto-generated catch
 				e.printStackTrace();
 			}
-
-			/*
-			 * SimpleFeatureSource source; try { source = ds.getFeatureSource("limited_to");
-			 * xFunction = FF.function("querySingle", FF.literal("astun:limited_to"),
-			 * FF.property(source.getSchema().getGeometryDescriptor().getName()),
-			 * FF.literal(ECQL.toCQL(orgFilter))); } catch (IOException e) { // TODO
-			 * Auto-generated catch block e.printStackTrace(); }
-			 */
+			LOGGER.info("restricting: " + and);
 		}
 		Geometry ret = GF.createPolygon((CoordinateSequence) null);
 		Geometry union = null;
@@ -143,7 +152,7 @@ public class PickAndUnionProcess extends StaticMethodsProcessFactory {
 		} else {
 			fullFilter = PickerProcess.parseFilterString(filter);
 		}
-		//System.out.println(fullFilter);
+		// System.out.println(fullFilter);
 
 		SimpleFeatureCollection collection1 = PickerProcess.getFeatures(collection, fullFilter);
 		// now union the results

@@ -6,18 +6,15 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.junit.Assume.assumeTrue;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
-import org.apache.log4j.lf5.PassingLogRecordFilter;
 import org.geoserver.wps.WPSException;
 import org.geotools.data.DataStore;
 import org.geotools.data.DataStoreFinder;
 import org.geotools.data.wfs.WFSDataStoreFactory;
-import org.geotools.data.wfs.impl.WFSDataAccessFactory;
 import org.geotools.feature.NameImpl;
 import org.geotools.filter.FilterTransformer;
 import org.geotools.geometry.jts.WKTReader2;
@@ -28,12 +25,11 @@ import org.geotools.util.KVP;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.opengis.feature.type.Name;
-
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.Geometry;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.io.ParseException;
+import org.opengis.feature.type.Name;
 
 public class PickAndUnionTest {
 	private static DataStore statesDS;
@@ -613,8 +609,6 @@ public class PickAndUnionTest {
 			Map<String, Object> result = working.get(); // get is BLOCKING
 
 			Geometry out1 = (Geometry) result.get("result");
-			// we are outside the Morrison's area so no result.
-			//System.out.println(out1);
 			assertTrue(out1.isEmpty());
 
 		} catch (ExecutionException | WPSException e) {

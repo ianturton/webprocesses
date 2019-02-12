@@ -28,7 +28,9 @@ public class KVPTestProcess extends StaticMethodsProcessFactory<KVPTestProcess> 
 	static public int kvpTest(@DescribeParameter(name="time",description="number of seconds to sleep",min=1,max=1,minValue=0)int seconds,
 			@DescribeParameter(name="fred",description="a 2nd parameter",min=0,max=1) String fred
 		) {
-		LOGGER.info("fred is '"+fred+')');
+		if(fred!=null&&!fred.isEmpty()) {
+			return 23;
+		}
 		try {
 			Thread.sleep(seconds*1000);
 		} catch (InterruptedException e) {
