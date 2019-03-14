@@ -112,13 +112,13 @@ public class PickAndUnionProcess extends StaticMethodsProcessFactory {
 							filters.add(FF.intersects(FF.property(localGeomName),
 									FF.literal(feature.getDefaultGeometry())));
 						}
-						if (filters.isEmpty())
-							and = Filter.EXCLUDE;
+						if (filters.isEmpty()) // no match so they can see anything
+							and = Filter.INCLUDE;
 						else if (filters.size() > 1)
 							and = FF.and(filters);
 						else
 							and = filters.get(0);
-						
+
 					}
 				} else {
 					// union the geoms together for the filter?
@@ -128,14 +128,12 @@ public class PickAndUnionProcess extends StaticMethodsProcessFactory {
 							SimpleFeature feature = (SimpleFeature) itr.next();
 							geoms.add((Geometry) feature.getDefaultGeometry());
 						}
-						if (geoms.isEmpty()) {
-							and = Filter.EXCLUDE;
-						} else {
-							GeometryCollection geometryCollection = (GeometryCollection) GF.buildGeometry(geoms);
 
-							Geometry union = geometryCollection.union();
-							and = FF.intersects(FF.property(localGeomName), FF.literal(union));
-						}
+						GeometryCollection geometryCollection = (GeometryCollection) GF.buildGeometry(geoms);
+
+						Geometry union = geometryCollection.union();
+						and = FF.intersects(FF.property(localGeomName), FF.literal(union));
+
 					}
 				}
 			} catch (IOException e) { // TODO Auto-generated catch
@@ -146,7 +144,7 @@ public class PickAndUnionProcess extends StaticMethodsProcessFactory {
 		Geometry ret = GF.createPolygon((CoordinateSequence) null);
 		Geometry union = null;
 		Filter fullFilter;
-		if (and != null) {
+		if (and != null && !and.equals(Filter.INCLUDE)) {
 			fullFilter = FF.and(PickerProcess.parseFilterString(filter), and);
 
 		} else {
