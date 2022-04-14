@@ -3,3 +3,4 @@ com.astuntechnology.wps.picker.PickerProcess
 com.astuntechnology.wps.picker.UnionProcess
 com.astuntechnology.wps.picker.PickAndUnionProcess
 com.astuntechnology.wps.test.SleepProcess
+com.astuntechnology.wps.test.KVPTestProcess

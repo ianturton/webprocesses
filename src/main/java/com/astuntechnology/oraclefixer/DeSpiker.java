@@ -59,7 +59,7 @@ public class DeSpiker {
 		}
 		DeSpiker spiker = new DeSpiker();
 		Polygon px = spiker.deDuplicate(p);
-		if(px!=null|| !px.isEmpty()) {
+		if(px!=null&& !px.isEmpty()) {
 			System.out.println("removed " + (p.getNumPoints() - px.getNumPoints()) + " duplicate points");
 		}else {
 			System.out.println("deleted "+p);
